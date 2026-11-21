@@ -26,3 +26,4 @@ Thumbs.db
 # Временные файлы
 *.tmp
 *.swp
+.pytest_cache/
