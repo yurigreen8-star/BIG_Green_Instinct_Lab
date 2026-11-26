@@ -27,3 +27,10 @@ Thumbs.db
 *.tmp
 *.swp
 .pytest_cache/
+
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*~
+results/*_raw.json

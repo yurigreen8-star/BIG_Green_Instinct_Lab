@@ -1,5 +1,5 @@
 """
-test_evsi.py — T1–T5, CRN, EVPI.
+test_evsi.py — T1–T5, CRN, EVPI + восстановимость когнитивных метрик из лога.
 """
 
 import math
@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from belief import Belief
+from environment import Environment
 from evsi import (
     compute_evsi_table_mc,
     evpi_mc,
@@ -15,7 +16,16 @@ from evsi import (
     evsi_mc_from_samples,
     ig,
 )
-from probes import SURVEY_FAST, SURVEY_STANDARD, Probe, ProbeType
+from policies.b_evsi import EVSIPolicy
+from policies.b_ig import IGPolicy
+from probes import (
+    SURVEY_FAST,
+    SURVEY_STANDARD,
+    Probe,
+    ProbeType,
+    build_catalog,
+)
+from runner import run_episode
 
 
 def _belief(mu, sigma2):
@@ -24,9 +34,19 @@ def _belief(mu, sigma2):
     return Belief(mu=mu, sigma2=sigma2, known=(sigma2 == 0.0))
 
 
+def _belief0(n: int) -> Belief:
+    return Belief(
+        mu=np.zeros(n),
+        sigma2=np.ones(n),
+        known=np.zeros(n, dtype=bool),
+    )
+
+
+# --- T1–T5, CRN, EVPI ---
+
 def test_T1_two_parcels_analytic():
     b = _belief([0.0, 0.0], [1.0, 1.0])
-    p = Probe(0, SURVEY_FAST)  # s2=1
+    p = Probe(0, SURVEY_FAST)
     expected = 1.0 / (2.0 * math.sqrt(math.pi))
     assert evsi_analytic(b, p) == pytest.approx(expected, abs=1e-12)
 
@@ -44,10 +64,8 @@ def test_T3_exact_one_probe_leq_evpi_two_unknown():
     p = Probe(0, exact)
     evsi_exact = evsi_analytic(b, p)
     assert evsi_exact == pytest.approx(1.0 / math.sqrt(2.0 * math.pi), abs=1e-12)
-
-    # EVPI двух неизвестных N(0,1): E[max(q1,q2)] = 1/sqrt(pi)
     evpi_two = 1.0 / math.sqrt(math.pi)
-    assert evsi_exact < evpi_two  # НЕ равенство
+    assert evsi_exact < evpi_two
 
 
 def test_T4_known_parcel_zero_evsi():
@@ -113,3 +131,39 @@ def test_ig_exact_uses_eps():
     exact = ProbeType(name="exact", cost=1.0, noise_var=0.0)
     p = Probe(0, exact)
     assert ig(b, p) > 0.0
+
+
+# --- Восстановимость когнитивных метрик из лога ---
+
+def test_ig_selected_recomputable_from_log():
+    n = 3
+    env = Environment.create(n, seed=42)
+    res = run_episode(IGPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+
+    entry = res.log[0]
+    mu = np.array(entry["mu_before"])
+    sigma2 = np.array(entry["sigma2_before"])
+    known = (sigma2 == 0.0)
+    belief_rec = Belief(mu=mu, sigma2=sigma2, known=known)
+
+    probe = next(p for p in build_catalog(n) if p.name == entry["probe_name"])
+
+    recomputed_ig = ig(belief_rec, probe)
+    assert recomputed_ig == pytest.approx(entry["ig_selected"], rel=1e-5)
+
+
+def test_evsi_analytic_selected_recomputable_from_log():
+    n = 3
+    env = Environment.create(n, seed=42)
+    res = run_episode(EVSIPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+
+    entry = res.log[0]
+    mu = np.array(entry["mu_before"])
+    sigma2 = np.array(entry["sigma2_before"])
+    known = (sigma2 == 0.0)
+    belief_rec = Belief(mu=mu, sigma2=sigma2, known=known)
+
+    probe = next(p for p in build_catalog(n) if p.name == entry["probe_name"])
+
+    recomputed_evsi = evsi_analytic(belief_rec, probe)
+    assert recomputed_evsi == pytest.approx(entry["evsi_analytic_selected"], rel=1e-5)

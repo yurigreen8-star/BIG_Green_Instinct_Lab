@@ -86,5 +86,85 @@ def test_evsi_policy_runs_and_logs_diagnostics():
     res = run_episode(EVSIPolicy(), _belief0(n), build_catalog(n), budget=30, env=env, seed=11, mode="A")
     obs_entries = [e for e in res.log if "observation" in e]
     assert len(obs_entries) > 0
-    assert all("evsi" in e for e in obs_entries)
-    assert all(e["evsi_method"] == "analytic" for e in obs_entries)
+    # Обновлённые имена полей согласно новой схеме логирования
+    assert all("evsi_analytic_selected" in e for e in obs_entries)
+    assert all(e["evsi_method_used"] == "analytic" for e in obs_entries)
+
+# --- НОВЫЕ ТЕСТЫ ЛОГИРОВАНИЯ ---
+
+def test_log_has_all_required_fields():
+    n = 3
+    env = Environment.create(n, seed=42)
+    res = run_episode(RandomPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+    
+    required_fields = [
+        "step", "policy_name", "mode", "parcel_id", "probe_type_id", 
+        "mu_before", "sigma2_before", "mu_after", "sigma2_after",
+        "ig_selected", "evsi_analytic_selected", "budget_used_cumulative"
+    ]
+    for entry in res.log[:-1]: # Исключаем stop event
+        for field in required_fields:
+            assert field in entry, f"Missing field: {field}"
+
+def test_log_full_belief_vectors():
+    n = 5
+    env = Environment.create(n, seed=42)
+    res = run_episode(RandomPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+    
+    for entry in res.log[:-1]:
+        assert len(entry["mu_before"]) == n
+        assert len(entry["sigma2_before"]) == n
+        assert len(entry["mu_after"]) == n
+        assert len(entry["sigma2_after"]) == n
+        
+        # Проверяем, что обновились только целевые участки (упрощённо: хотя бы один изменился)
+        changed = sum(1 for i in range(n) if entry["mu_after"][i] != entry["mu_before"][i])
+        assert changed >= 1
+
+def test_log_last_entry_is_stop_event():
+    n = 3
+    env = Environment.create(n, seed=42)
+    res = run_episode(NonePolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+    
+    last_entry = res.log[-1]
+    assert last_entry["event"] == "stop"
+    assert "stop_reason" in last_entry
+    assert last_entry["stop_reason"] == "policy_none"
+
+def test_log_ig_selected_non_negative():
+    n = 3
+    env = Environment.create(n, seed=42)
+    res = run_episode(RandomPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+    
+    for entry in res.log[:-1]:
+        assert entry["ig_selected"] >= -1e-9  # Допускаем микро-погрешность float
+
+def test_log_evsi_alternative_present():
+    n = 5
+    env = Environment.create(n, seed=42)
+    res = run_episode(RandomPolicy(), _belief0(n), build_catalog(n), 30, env, seed=42, mode="A")
+    
+    for entry in res.log[:-1]:
+        # Если доступно > 1 зонда, альтернатива должна быть заполнена
+        # (В RandomPolicy на первом шаге доступно 15 зондов)
+        assert entry["evsi_best_alternative_parcel"] is not None
+        assert entry["evsi_best_alternative_score"] is not None
+
+def test_backward_compat_raw_json(tmp_path):
+    # Эмуляция сохранения, проверка структуры
+    import json
+    dummy_raw = {
+        "B_test": {
+            "regret": [0.5], "pcs": [1], "n_probes": [5], "budget_used": [30.0], "stop_reason": ["budget"],
+            "logs": [[{"step": 0, "mu_before": [0.0]}]]
+        }
+    }
+    out_file = tmp_path / "test_raw.json"
+    with open(out_file, "w") as f:
+        json.dump(dummy_raw, f)
+        
+    with open(out_file, "r") as f:
+        loaded = json.load(f)
+        
+    assert "regret" in loaded["B_test"]
+    assert "logs" in loaded["B_test"]

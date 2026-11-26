@@ -160,10 +160,23 @@ def run_full_experiment(n_scenarios: int = 100, n_parcels: int = 30):
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(export_data, f, indent=2)
     
-    # Сохраняем сырые данные отдельно для возможного глубокого анализа
-    raw_out_file = results_dir / "exp_100_scenarios_raw.json"
+        # Сохраняем сырые данные с полными логами
+    raw_out_file = results_dir / "h2_results_raw.json"  # (или соответствующее имя)
+    
+    # Формируем структуру с обратной совместимостью
+    raw_export = {}
+    for name in policies:
+        raw_export[name] = {
+            "regret": raw_data[name]["regret"],
+            "pcs": raw_data[name]["pcs"],
+            "n_probes": raw_data[name]["n_probes"],
+            "budget_used": raw_data[name]["budget_used"],
+            "stop_reason": raw_data[name]["stop_reason"],
+            "logs": raw_data[name]["logs"],  # <-- НОВОЕ ПОЛЕ
+        }
+        
     with open(raw_out_file, "w", encoding="utf-8") as f:
-        json.dump(raw_data, f, indent=2)
+        json.dump(raw_export, f, indent=2)
 
     print(f"\n💾 Результаты сохранены в:\n   - {out_file}\n   - {raw_out_file}")
     print("✅ Эксперимент успешно завершён.")

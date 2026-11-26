@@ -60,7 +60,8 @@ def run_h2_experiment(n_scenarios: int = 100, n_parcels: int = 30, seed_start: i
     }
 
     catalog = build_catalog(n_parcels)
-    raw_data = {name: {"regret": [], "pcs": [], "n_probes": [], "budget_used": []} for name in policies}
+    raw_data = {name: {"regret": [], "pcs": [], "n_probes": [], "budget_used": [],
+                   "stop_reason": [], "logs": []} for name in policies}
 
     for seed in range(seed_start, seed_start + n_scenarios):
         env = Environment.create(n_parcels=n_parcels, seed=seed)
@@ -75,6 +76,8 @@ def run_h2_experiment(n_scenarios: int = 100, n_parcels: int = 30, seed_start: i
             raw_data[name]["pcs"].append(1 if res.pcs else 0)
             raw_data[name]["n_probes"].append(res.n_probes)
             raw_data[name]["budget_used"].append(res.budget_used)
+            raw_data[name]["stop_reason"].append(res.stop_reason)
+            raw_data[name]["logs"].append(res.log)
 
     # 1. Сводная статистика
     print("=" * 95)
@@ -185,9 +188,37 @@ def run_h2_experiment(n_scenarios: int = 100, n_parcels: int = 30, seed_start: i
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(export_data, f, indent=2)
         
-    raw_out_file = results_dir / "h2_results_raw.json"
+    # Сохраняем сырые данные с полными логами
+    raw_out_file = results_dir / "h2_results_raw.json"   # <-- ЭТОЙ СТРОКИ НЕ ХВАТАЛО
+    raw_export = {}
+    for name in policies:
+        raw_export[name] = {
+            "regret": raw_data[name]["regret"],
+            "pcs": raw_data[name]["pcs"],
+            "n_probes": raw_data[name]["n_probes"],
+            "budget_used": raw_data[name]["budget_used"],
+            "stop_reason": raw_data[name]["stop_reason"],
+            "logs": raw_data[name]["logs"],
+        }
+        
     with open(raw_out_file, "w", encoding="utf-8") as f:
-        json.dump(raw_data, f, indent=2)
+        json.dump(raw_export, f, indent=2)
+
+        
+    # Формируем структуру с обратной совместимостью
+    raw_export = {}
+    for name in policies:
+        raw_export[name] = {
+            "regret": raw_data[name]["regret"],
+            "pcs": raw_data[name]["pcs"],
+            "n_probes": raw_data[name]["n_probes"],
+            "budget_used": raw_data[name]["budget_used"],
+            "stop_reason": raw_data[name]["stop_reason"],
+            "logs": raw_data[name]["logs"],  # <-- НОВОЕ ПОЛЕ
+        }
+        
+    with open(raw_out_file, "w", encoding="utf-8") as f:
+        json.dump(raw_export, f, indent=2)
 
     print(f"\n💾 Результаты сохранены в:\n   - {out_file}\n   - {raw_out_file}")
 
