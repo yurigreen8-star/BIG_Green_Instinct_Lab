@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # Виртуальные окружения
 venv/
@@ -12,9 +13,16 @@ env/
 .vscode/
 .idea/
 
-# Результаты экспериментов (большие файлы)
+# Результаты экспериментов: по умолчанию игнорируются (большие файлы)
 results/*
 !results/.gitkeep
+
+# Малые артефакты, необходимые для воспроизводимости
+!results/q_V.json
+!results/*_config.json
+!results/*_checks.json
+!results/*_summary.json
+!results/e2_calib_grid.json
 
 # Логи
 *.log
@@ -26,11 +34,4 @@ Thumbs.db
 # Временные файлы
 *.tmp
 *.swp
-.pytest_cache/
-
-venv/
-__pycache__/
-*.pyc
-.pytest_cache/
 *~
-results/*_raw.json
