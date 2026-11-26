@@ -66,7 +66,9 @@ def q_for(group, budget, stage, q_table):
     if not group.startswith("MATCH_"):
         return None, "not_applicable"
     if stage == "confirm":
-        key = f"{group}|{int(budget)}"
+        # Убираем префикс MATCH_ для поиска в q_V.json
+        matched_v = group.replace("MATCH_", "")
+        key = f"{matched_v}|{int(budget)}"
         if q_table is None or key not in q_table:
             raise SystemExit(f"confirm требует q_V.json с ключом {key}")
         return float(q_table[key]["q"]), "q_V.json"
