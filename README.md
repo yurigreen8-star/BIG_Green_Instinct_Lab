@@ -126,4 +126,4 @@ PREREGISTRATION.md PREREGISTRATION_H2.md          — предрегистрац
   тождество BS, кроссоверы BS/S, вырождение novelty)
 - `tests/test_evsi_verification.py`, `experiments/verify_residual_identity.py`
 - `results/bs_verification.json`, `results/ciq_equivalence.json`,
-  `results/evsi_verification.json`, `results/architect_report.txt`
+  `results/evsi_verification.json`, `results/architect_report.txt`# BIG_Green_Instinct_Lab
