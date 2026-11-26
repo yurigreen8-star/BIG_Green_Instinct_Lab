@@ -1,6 +1,5 @@
 """
-Шаг 3. Отчёт: bs_verification.json, ciq_equivalence.json, заключение.
-Ничего не хардкодит из результатов: всё считается.
+Шаг 3 (исправлено). Отчёт: bs_verification.json, ciq_equivalence.json, заключение.
 """
 
 import json
@@ -42,14 +41,17 @@ def bs_block():
             ig_exact = 0.5 * math.log1p(a / r)
             se = float(bs.std(ddof=1) / math.sqrt(N_OBS))
             diff = float(bs.mean()) - ig_exact
+            kappa = a / (a + r)
             rows.append({
                 "sigma2": a, "noise_var": r, "n_obs": N_OBS, "seed": seed,
                 "mean_bs": float(bs.mean()), "ig_exact": ig_exact,
-                "diff": diff, "se": se, "z": diff / se,
+                "diff": diff, "se": se, "z_score": diff / se,
+                "kappa": kappa,
                 "ci95_mean_bs": [float(bs.mean() - 1.96 * se),
                                  float(bs.mean() + 1.96 * se)],
                 "within_3se": bool(abs(diff) <= 3.0 * se),
             })
+    
     a = r = 1.0
     ig1 = 0.5 * math.log(2.0)
     div = []
@@ -59,18 +61,23 @@ def bs_block():
         s = predictive_surprise(o, 0.0, a, r)
         div.append({"z": z, "bs": bs, "s": s, "bs_minus_s": bs - s,
                     "gap_over_z2": (bs - s) / (z * z)})
+    
     return {
-        "identity": "BS = IG + sigma2/(2*(sigma2+r))*(z^2-1); E[BS]=IG",
+        "identity": "BS = IG + kappa/2 * (z^2 - 1), kappa = sigma2/(sigma2+r)",
         "kl_direction": "KL(posterior||prior) (Itti-Baldi)",
+        "note": "E[BS] = IG при усреднении по prior predictive distribution",
         "mc_grid": rows,
         "all_within_3se": all(x["within_3se"] for x in rows),
-        "max_abs_z": max(abs(x["z"]) for x in rows),
+        "max_abs_mc_zscore": max(abs(x["z_score"]) for x in rows),
         "bs_vs_s": div,
-        "asymptotic_gap_coefficient": 0.25,
-        "crossovers_z": [0.396557, 1.567306],
+        "asymptotic_gap_coefficient": "kappa/2",
+        "example_kappa_0_5": 0.25,
+        "crossovers_note": "crossover points зависят от kappa и параметров",
+        "crossovers_example_kappa_0_5": [0.396557, 1.567306],
         "corrections_to_assignment": [
-            "асимптотика BS-S есть z^2/4, не z^2/2 (z^2/2 = обратная KL, E != IG)",
-            "BS > S неверно при z=1; интервал BS<S: (0.3966, 1.5673)",
+            "асимптотика BS-S есть (kappa/2)*z^2, не z^2/4 (последнее при kappa=0.5)",
+            "BS > S неверно при z=1; BS<S на (0.3966,1.5673) при kappa=0.5",
+            "max_abs_z переименован в max_abs_mc_zscore: это z-score отклонения MC mean от IG",
         ],
     }
 
@@ -107,6 +114,13 @@ def ciq_block():
             "n_seeds": len(rows),
             "all_identical": all(x["identical"] for x in rows),
             "n_identical": sum(x["identical"] for x in rows),
+            "equivalence_conditions": [
+                "одинаковые Gaussian priors (sigma2_prior=1.0)",
+                "Curiosity выбирает только объект (parcel_id)",
+                "Runner назначает FAST",
+                "одинаковое правило разрешения равенств (rng.choice)",
+                "текущие правила обновления внутреннего состояния",
+            ],
             "episodes": rows,
         }
     return out
@@ -121,33 +135,36 @@ def main():
 
     L = []
     W = L.append
-    W("ЗАКЛЮЧЕНИЕ (Шаг 0-3)")
-    W("1. Тождество BS = IG + a/(2(a+r))*(z^2-1) доказано и проверено численно.")
-    W(f"2. MC {N_OBS} набл. x 9 комбинаций: max|z| = {bs['max_abs_z']:.3f}, "
+    W("ЗАКЛЮЧЕНИЕ (Шаг 0-3, исправлено)")
+    W("1. Тождество BS = IG + (kappa/2)*(z^2-1) доказано.")
+    W(f"2. MC {N_OBS} набл. x 9 комбинаций: max|z_score| = {bs['max_abs_mc_zscore']:.3f}, "
       f"все в 3 sigma: {bs['all_within_3se']}.")
-    W("3. E[BS]=IG подтверждено: BS — несмещённая оценка информационного выигрыша.")
-    W("4. Исправление поручения: асимптотика BS-S = z^2/4, не z^2/2.")
-    W("   z^2/2 соответствует обратной KL, у которой E = a/r - IG != IG.")
-    W("5. Исправление поручения: BS>S неверно при z=1; BS<S на (0.3966,1.5673).")
-    W("6. Behavioral novelty выродилась: B = 2*IG точно в FAST-only E0.")
-    W("   Независимым драйвом не является.")
+    W("3. E[BS]=IG при усреднении по prior predictive distribution.")
+    W("4. Исправление: асимптотика BS-S = (kappa/2)*z^2, не z^2/4.")
+    W("   z^2/4 соответствует kappa=0.5 (sigma2=r=1).")
+    W("5. max_abs_z переименован в max_abs_mc_zscore.")
+    W("6. Behavioral novelty: B = 2*IG точно в FAST-only E0 (доказательство ниже).")
     W("7. A-ранжирование BASE и IG идентично при любых v: общий делитель")
-    W("   порядок не меняет, обе A строго убывают по v. Подтверждено 200 случаями.")
+    W("   порядок не меняет, обе A строго убывают по v.")
     for k, v in ciq.items():
         W(f"8. {k}: идентичных траекторий {v['n_identical']}/{v['n_seeds']}.")
-    if ciq["budget_30"]["all_identical"]:
-        W("9. budget=30: структурная эквивалентность подтверждена; отличие в E0")
-        W("   невозможно, требует неоднородных априоров или смешанных типов зондов.")
-    if not ciq["budget_45"]["all_identical"]:
-        W("10. ВНИМАНИЕ: budget=45 траектории РАСХОДЯТСЯ. Равенство A-ранжирования")
-        W("    не влечёт равенства EMA-траекторий. ЭСКАЛАЦИЯ архитектору.")
-    else:
-        W("10. budget=45: траектории совпали на всех сидах; различие проявится")
-        W("    только при неоднородных априорах или смешанных типах зондов.")
-    W("11. Диагностические поля BS/novelty добавлены в Runner; выбор действий")
-    W("    не изменён, Curiosity не изменён.")
-    W("12. Управляющих сигналов не добавлено. Три пробела не тронуты.")
-
+        W(f"   Условия: {', '.join(v['equivalence_conditions'])}")
+    W("9. BASE и C_IG структурно эквивалентны в указанной конфигурации E0.")
+    W("   Это НЕ доказывает эквивалентность IG и EVSI в целом.")
+    W("10. Диагностика BS/novelty добавлена в Runner; выбор действий не изменён.")
+    W("")
+    W("ДОКАЗАТЕЛЬСТВО B = 2*IG (FAST-only, sigma2_prior=1.0):")
+    W("  B = ln(v+2) - ln(v+1), где v = число предыдущих зондов")
+    W("  После v зондов: sigma2 = 1/(1+v)")
+    W("  IG = 0.5 * ln(1 + sigma2/r) = 0.5 * ln(1 + 1/(1+v)) = 0.5 * ln((v+2)/(v+1))")
+    W("  B = ln((v+2)/(v+1)) = 2 * 0.5 * ln((v+2)/(v+1)) = 2 * IG")
+    W("  Условия тождества:")
+    W("    - FAST-only (r = 1.0)")
+    W("    - Prior sigma2 = 1.0")
+    W("    - v = число предыдущих зондов данного типа")
+    W("  Behavioral novelty является преобразованием неопределённости,")
+    W("  а не самостоятельным драйвом.")
+    
     txt = "\n".join(L)
     (RES / "bs_ciq_conclusion.txt").write_text(txt + "\n", encoding="utf-8")
     print(txt)

@@ -1,21 +1,24 @@
 """
-experiments/run_v3_main.py — основной прогон v3.0.
+experiments/run_v3_main.py — основной прогон v3.0 с контрольными расписаниями.
 
-4 режима v3 + 7 контролей v0.1 на одних сидах.
+7 режимов v3 + 9 контролей v0.1 на одних сидах.
 Три residual-метрики: L1 (пошаговое), L3 (сумма по эпизоду), mean_diff.
 Тождество L3 = -k*L1 проверяется assert'ом для каждой группы.
-mean_diff тождественно L1 при одинаковой агрегации — в печать не выводится.
 
 Факторный контраст I_CR — ТОЛЬКО для аддитивных метрик.
-Для regret — парные сравнения, без знаковой интерпретации контраста.
+Для regret — парные сравнения с Holm по семье из 10 контролей,
+включая три расписания чередования и два sweep-контроля (закрытие H-D).
 
 Сиды 0-99 использовались в v0.1 => прогон помечен EXPLORATORY.
-Расписания (фиксированное/случайное чередование) в v3.0 отсутствуют.
+
+argparse разобран ВНУТРИ main(): модуль можно импортировать без побочных
+эффектов (прежняя ошибка: parse_args на уровне модуля ломал pytest).
 """
 
 import sys
 from pathlib import Path
 import json
+import argparse
 import numpy as np
 from scipy import stats
 
@@ -27,6 +30,7 @@ from curiosity import Curiosity
 from environment import Environment
 from messages import (
     MODE_COMBINED, MODE_COMBINED_IGNORE, MODE_CURIOSITY_SOLO, MODE_RATIO_SOLO,
+    MODE_FIXED_ALT_C_FIRST, MODE_FIXED_ALT_R_FIRST, MODE_RANDOM_ALT_50_50,
 )
 from policies.b_evsi import EVSIPolicy, EVSICostPolicy
 from policies.b_ig import IGPolicy
@@ -34,24 +38,24 @@ from policies.b_mean_precision import MeanPrecisionPolicy
 from policies.b_none import NonePolicy
 from policies.b_random import RandomPolicy
 from policies.b_random_without_replacement import RandomWithoutReplacementPolicy
+from policies.b_sweep_then_revisit import (
+    SweepThenRandomRevisitPolicy, SweepThenReverseRevisitPolicy,
+)
 from probes import build_catalog
 from ratio import Ratio
 from runner import run_episode
 from runner_v3 import run_episode_v3
 
-import argparse
-
-_ap = argparse.ArgumentParser()
+_ap = argparse.ArgumentParser(
+    description="Основной прогон v3.0: режимы, контроли, расписания."
+)
 _ap.add_argument("--budget", type=float, default=30.0)
 _ap.add_argument("--n-seeds", type=int, default=100)
 _ap.add_argument("--seed-start", type=int, default=0)
 _ap.add_argument("--tag", type=str, default="main")
-_args = _ap.parse_args()
 
 N = 30
-BUDGET = _args.budget
-SEEDS = range(_args.seed_start, _args.seed_start + _args.n_seeds)
-TAG = _args.tag
+SIGMA2_PRIOR = 1.0   # E0: однородные априоры; при смене среды менять здесь и в Curiosity
 BOOT_RNG = np.random.default_rng(20261123)
 N_BOOT = 2000
 
@@ -60,6 +64,9 @@ V3_MODES = {
     "RATIO_SOLO": MODE_RATIO_SOLO,
     "COMBINED": MODE_COMBINED,
     "COMBINED_IGNORE": MODE_COMBINED_IGNORE,
+    "FIXED_ALTERNATION_C_FIRST": MODE_FIXED_ALT_C_FIRST,
+    "FIXED_ALTERNATION_R_FIRST": MODE_FIXED_ALT_R_FIRST,
+    "RANDOM_ALTERNATION_50_50": MODE_RANDOM_ALT_50_50,
 }
 
 V01_POLICIES = {
@@ -70,11 +77,17 @@ V01_POLICIES = {
     "B_EVSI": lambda: EVSIPolicy(use_mc=False),
     "B_EVSI_cost": lambda: EVSICostPolicy(use_mc=False),
     "B_random_without_replacement": RandomWithoutReplacementPolicy,
+    "B_sweep_then_random_revisit": SweepThenRandomRevisitPolicy,
+    "B_sweep_then_reverse_revisit": SweepThenReverseRevisitPolicy,
 }
 
 
 def belief0():
-    return Belief(mu=np.zeros(N), sigma2=np.ones(N), known=np.zeros(N, dtype=bool))
+    return Belief(
+        mu=np.zeros(N),
+        sigma2=np.full(N, SIGMA2_PRIOR),
+        known=np.zeros(N, dtype=bool),
+    )
 
 
 def steps(log):
@@ -116,7 +129,7 @@ def episode_metrics(log):
         att[int(k)] = int(c)
 
     final_s2 = np.asarray(stop["final_sigma2"], dtype=float)
-    entropy = 0.5 * float(np.sum(np.log(1.0 / final_s2[final_s2 > 0.0])))
+    entropy = 0.5 * float(np.sum(np.log(SIGMA2_PRIOR / final_s2[final_s2 > 0.0])))
 
     return {
         "n_steps": len(s),
@@ -170,6 +183,12 @@ def paired_bootstrap_contrast(cr, c, r, zero, n_boot=N_BOOT):
 
 
 def main():
+    global BUDGET, SEEDS, TAG
+    args = _ap.parse_args()
+    BUDGET = args.budget
+    SEEDS = range(args.seed_start, args.seed_start + args.n_seeds)
+    TAG = args.tag
+
     print(f"v3.0 MAIN (EXPLORATORY, seeds {SEEDS.start}-{SEEDS.stop - 1}), "
           f"n={N}, budget={BUDGET}")
     catalog = build_catalog(N)
@@ -203,10 +222,10 @@ def main():
         raw[name] = {"logs": logs, **{k: [r[k] for r in recs] for k in recs[0]}}
         print(f"   {name}: {len(recs)} эпизодов")
 
-    print("\n" + "=" * 115)
+    print("\n" + "=" * 126)
     print(f"{'Группа':<30} {'regret':>8} {'PCS%':>6} {'probes':>7} {'uniq':>6} "
-          f"{'Gini':>6} {'L1':>12} {'L3':>12} {'IG-entr':>9} {'ctr':>6}")
-    print("-" * 115)
+          f"{'Gini':>6} {'L1':>13} {'L3':>13} {'IG-entr':>9} {'ctr':>6}")
+    print("-" * 126)
     summary = {}
     for name, recs in per_ep.items():
         T = sum(r["n_steps"] for r in recs)
@@ -243,18 +262,21 @@ def main():
                              for s in {r["stop_reason"] for r in recs}},
         }
         s = summary[name]
-        fmt = lambda v: "         n/a" if v is None else f"{v:12.6f}"
+        fmt = lambda v: "          n/a" if v is None else f"{v:13.6f}"
         print(f"{name:<30} {s['mean_regret']:8.4f} {s['pcs_pct']:6.1f} "
               f"{s['mean_probes']:7.2f} {s['mean_unique']:6.2f} {s['mean_gini']:6.3f} "
               f"{fmt(l1)} {fmt(l3)} {s['max_ig_entropy_absdiff']:9.2e} "
               f"{s['mean_counter_executed']:6.2f}")
-    print("=" * 115)
+    print("=" * 126)
     print("mean_diff == L1 тождественно (одинаковая агрегация); значение в summary.json")
 
     target = "COMBINED"
     comps = ["CURIOSITY_SOLO", "RATIO_SOLO", "COMBINED_IGNORE",
-             "B_EVSI_cost", "B_random_without_replacement"]
-    print(f"\nRegret: парный двусторонний Wilcoxon, {target} vs контроли (Holm)")
+             "B_EVSI_cost", "B_random_without_replacement",
+             "B_sweep_then_random_revisit", "B_sweep_then_reverse_revisit",
+             "FIXED_ALTERNATION_C_FIRST", "FIXED_ALTERNATION_R_FIRST",
+             "RANDOM_ALTERNATION_50_50"]
+    print(f"\nRegret: парный двусторонний Wilcoxon, {target} vs {len(comps)} контролей (Holm)")
     print("-" * 96)
     pvals, rows = [], []
     a = np.asarray([r["regret"] for r in per_ep[target]])
@@ -292,7 +314,6 @@ def main():
     out = Path(__file__).parent.parent / "results"
     out.mkdir(exist_ok=True)
 
-    summary_path = out / f"v3_{TAG}_summary.json"
     raw_path = out / f"v3_{TAG}_raw.json"
     raw_path.write_text(json.dumps(raw, separators=(",", ":")), encoding="utf-8")
 
@@ -302,6 +323,7 @@ def main():
         "seed_range": [SEEDS.start, SEEDS.stop - 1],
         "n_parcels": N, "budget": BUDGET,
         "lambda_curiosity": 0.3,
+        "sigma2_prior": SIGMA2_PRIOR,
         "summary": summary,
         "regret_paired_tests": [
             {"target": target, "control": c, "delta": d,
@@ -312,17 +334,18 @@ def main():
         "factorial_contrast_additive_only": contrasts,
         "limitations": [
             "Сиды 0-99 использовались в v0.1 — прогон exploratory, не confirmatory.",
-            "Фиксированное и случайное чередование в v3.0 не реализованы; "
-            "отличие COMBINED от расписаний не проверено.",
+            "Расписания чередования и sweep-контроли включены в семью сравнений; "
+            "H-D читается по строкам COMBINED vs FIXED/RANDOM_ALTERNATION и vs sweep.",
             "I_CR не применяется к regret: механизмы замещающие, контраст неаддитивен.",
-            "Curiosity solo в Mode A = sweep 30xFAST (доказано тестом); "
-            "сравнение с B_random_without_replacement обязательно.",
+            "При budget = n sweep-контроли не имеют фазы повторов и неинформативны; "
+            "содержательны только budget > n (45, 60).",
+            "Curiosity solo в Mode A при budget = n = sweep 30xFAST (доказано тестом).",
             "mean_diff тождественно stepwise_residual_mean при одинаковой агрегации.",
         ],
     }, indent=2), encoding="utf-8")
 
     mb = raw_path.stat().st_size / 1e6
-    print(f"\nresults/v3_main_raw.json ({mb:.1f} MB), results/v3_main_summary.json")
+    print(f"\nresults/v3_{TAG}_raw.json ({mb:.1f} MB), results/v3_{TAG}_summary.json")
 
 
 if __name__ == "__main__":

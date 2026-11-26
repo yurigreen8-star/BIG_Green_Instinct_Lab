@@ -60,6 +60,7 @@ def test_ciq_equivalence_random_states():
 
 
 @pytest.mark.parametrize("a", [0.5, 1.0, 2.0])
+
 @pytest.mark.parametrize("r", [0.25, 1.0, 4.0])
 def test_bs_equals_ig(a, r):
     """
@@ -131,3 +132,25 @@ def test_behavioral_novelty_degenerates(v):
     assert b == pytest.approx(math.log(v + 2) - math.log(v + 1), abs=1e-15)
     ig_fast = 0.5 * math.log1p(1.0 / (1.0 + v))
     assert b == pytest.approx(2.0 * ig_fast, abs=1e-12)
+
+def test_behavioral_novelty_equals_two_ig_proof():
+    """
+    Строгое доказательство B = 2*IG при условиях:
+      - FAST-only (r = 1.0)
+      - Prior sigma2 = 1.0
+      - v = число предыдущих зондов
+    
+    B = ln(v+2) - ln(v+1) = ln((v+2)/(v+1))
+    После v зондов: sigma2 = 1/(1+v)
+    IG = 0.5 * ln(1 + sigma2/r) = 0.5 * ln((v+2)/(v+1))
+    B = 2 * IG точно.
+    
+    Behavioral novelty является преобразованием неопределённости,
+    а не самостоятельным драйвом.
+    """
+    for v in [0, 1, 2, 3, 5, 10, 50]:
+        b = behavioral_novelty(v)
+        sigma2 = 1.0 / (1.0 + v)
+        ig = 0.5 * math.log1p(sigma2 / 1.0)
+        assert b == pytest.approx(2.0 * ig, abs=1e-15)
+        assert b == pytest.approx(math.log((v + 2) / (v + 1)), abs=1e-15)

@@ -1,24 +1,31 @@
 """
-coordinator.py — Координатор v3.0. Один структурный протокол.
+coordinator.py — Координатор v3.0.
 
-ЗАПРЕЩЕНО и физически отсутствует: импорт evsi / belief / environment.
-Координатор НЕ пересчитывает EVSI. Он проверяет:
-  (а) структурную целостность полей RatioProposal против CuriosityProposal;
-  (б) арифметику строгого доминирования по переданным Ratio значениям EVSI.
+Запрещено и физически отсутствует: импорт evsi / belief / environment.
+Координатор НЕ пересчитывает EVSI. Он проверяет структурную целостность
+полей RatioProposal и арифметику доминирования по переданным значениям.
 
-Единственная константа каталога, которую он использует, — SURVEY_FAST:
-для построения Probe из parcel_id и для сверки target_cost. Это структурная
-проверка, а не сравнение скаляров между механизмами.
+Режимы чередования: на каждом ходу действует ровно один механизм,
+доминирование не проверяется. RANDOM_ALTERNATION требует rng и без него
+падает явно, а не подставляет молча детерминированный порядок.
 
-Бюджет не проверяет (это делает Runner); параметр принят для совместимости.
+Единственная константа каталога — SURVEY_FAST: для построения Probe из
+parcel_id и для сверки target_cost. Структурная проверка, не сравнение
+скаляров между механизмами.
 """
 
 from __future__ import annotations
 
+import numpy as np
+
 from messages import (
+    ALTERNATION_MODES,
     MODE_COMBINED,
     MODE_COMBINED_IGNORE,
     MODE_CURIOSITY_SOLO,
+    MODE_FIXED_ALT_C_FIRST,
+    MODE_FIXED_ALT_R_FIRST,
+    MODE_RANDOM_ALT_50_50,
     MODE_RATIO_SOLO,
     MODES,
     CoordinatorDecision,
@@ -53,20 +60,12 @@ class Coordinator:
             return False
         if rp.target_parcel_id is None or rp.target_cost is None or rp.target_evsi is None:
             return False
-
-        # (1) контр должен относиться к тому участку, который предложило Любопытство
         if int(rp.target_parcel_id) != int(cp.parcel_id):
             return False
-
-        # (2) заявленная стоимость контра = фактическая стоимость его зонда
         if abs(float(rp.cost) - float(rp.probe.cost)) > self._eps_cost:
             return False
-
-        # (3) заявленная стоимость цели = стоимость FAST на участке Любопытства
         if abs(float(rp.target_cost) - float(SURVEY_FAST.cost)) > self._eps_cost:
             return False
-
-        # (4) арифметика строгого доминирования по переданным значениям
         return strictly_dominates(
             rp.cost,
             rp.evsi,
@@ -82,11 +81,39 @@ class Coordinator:
         ratio_proposal: RatioProposal | None,
         mode: str,
         budget_remaining: float,
+        step: int = 0,
+        rng: np.random.Generator | None = None,
     ) -> CoordinatorDecision:
         if mode not in MODES:
             raise ValueError(f"неизвестный режим: {mode}")
 
         cp_probe = self._to_probe(curiosity_proposal)
+
+        if mode in ALTERNATION_MODES:
+            if mode == MODE_FIXED_ALT_C_FIRST:
+                c_turn = (int(step) % 2 == 0)
+            elif mode == MODE_FIXED_ALT_R_FIRST:
+                c_turn = (int(step) % 2 == 1)
+            else:
+                if rng is None:
+                    raise ValueError(
+                        "RANDOM_ALTERNATION_50_50 требует rng; "
+                        "молчаливый детерминированный fallback запрещён"
+                    )
+                c_turn = bool(rng.integers(2) == 0)
+
+            if c_turn:
+                return CoordinatorDecision(
+                    action=cp_probe,
+                    reason="curiosity" if cp_probe is not None else "stop_all_known",
+                    verified_dominance=False,
+                )
+            action = ratio_proposal.probe if ratio_proposal is not None else None
+            return CoordinatorDecision(
+                action=action,
+                reason="ratio_solo" if action is not None else "stop_no_affordable",
+                verified_dominance=False,
+            )
 
         if mode == MODE_CURIOSITY_SOLO:
             return CoordinatorDecision(

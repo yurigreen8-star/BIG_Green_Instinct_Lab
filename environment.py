@@ -9,6 +9,12 @@ CRN-протокол:
     Скрытого счётчика наблюдений нет.
 
 theta_true НИКОГДА не передаётся в политики.
+
+E1-A:
+    create_e1a() создаёт среду с неоднородными априорными дисперсиями
+    s_i ~ U(0.5, 2.0), q_i ~ N(0, s_i).
+    Независимые потоки через SeedSequence.spawn() для приорных дисперсий
+    и истинных значений.
 """
 
 from __future__ import annotations
@@ -34,6 +40,18 @@ class Observation:
 class Environment:
     theta_true: np.ndarray
     episode_seed: int
+    sigma2_prior: np.ndarray | None = None
+
+    def __post_init__(self) -> None:
+        # E0 по умолчанию: однородные приоры sigma2_prior = 1.0.
+        if self.sigma2_prior is None:
+            self.sigma2_prior = np.ones(self.theta_true.shape[0], dtype=np.float64)
+        else:
+            self.sigma2_prior = np.asarray(self.sigma2_prior, dtype=np.float64)
+            if self.sigma2_prior.shape != self.theta_true.shape:
+                raise ValueError("sigma2_prior и theta_true должны быть одной формы")
+            if np.any(self.sigma2_prior <= 0.0):
+                raise ValueError("sigma2_prior должен быть > 0")
 
     @classmethod
     def create(
@@ -48,6 +66,40 @@ class Environment:
         rng_env = np.random.default_rng(seed)
         theta_true = rng_env.normal(loc=prior_mean, scale=prior_std, size=n_parcels)
         return cls(theta_true=theta_true, episode_seed=int(seed))
+
+    @classmethod
+    def create_e1a(cls, n_parcels: int, seed: int) -> "Environment":
+        """
+        E1-A: неоднородные априорные дисперсии.
+
+        Для каждого объекта независимо:
+            s_i ~ U(0.5, 2.0)      — априорная дисперсия,
+            q_i ~ N(0, s_i)        — истинное качество.
+
+        Согласованная генеративная модель: агент знает априорные
+        распределения, из которых получена истина.
+
+        Раздельные потоки через SeedSequence.spawn():
+            ss_prior — для априорных дисперсий,
+            ss_theta — для истинных значений.
+        Шум измерений идёт через CRN в observe(), политики и EVPI MC
+        используют собственные потоки в раннере.
+        """
+        if n_parcels <= 0:
+            raise ValueError(f"n_parcels должен быть > 0, получено {n_parcels}")
+        ss = np.random.SeedSequence(seed)
+        ss_prior, ss_theta = ss.spawn(2)
+        rng_prior = np.random.default_rng(ss_prior)
+        rng_theta = np.random.default_rng(ss_theta)
+
+        sigma2_prior = rng_prior.uniform(0.5, 2.0, n_parcels)
+        theta_true = rng_theta.normal(0.0, np.sqrt(sigma2_prior), n_parcels)
+
+        return cls(
+            theta_true=theta_true,
+            episode_seed=int(seed),
+            sigma2_prior=sigma2_prior,
+        )
 
     @property
     def n(self) -> int:

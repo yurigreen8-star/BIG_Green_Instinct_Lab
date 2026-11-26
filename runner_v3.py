@@ -1,6 +1,17 @@
 """
 runner_v3.py — цикл v3.0 (Curiosity / Ratio / Coordinator) + полный event log.
-...докстринг...
+
+Контракты:
+  * Curiosity получает ТОЛЬКО known_mask (propose) и CuriosityView (update).
+  * Surprise и BS вычисляются Runner'ом ДО обновления Belief для ФАКТИЧЕСКИ
+    исполненного зонда; Curiosity получает готовый скаляр.
+  * visit_count инкрементируется у ФАКТИЧЕСКИ обследованного участка,
+    даже если действие выбрал Ratio.
+  * Обновление интереса — для ВСЕХ объектов (вариант B).
+  * v0.1 run_episode не затрагивается.
+
+Ветка reject (§6.7) в E0 недостижима: min cost = 1, Coordinator всегда
+строит FAST. Guard сохранён, тесты не требуют его срабатывания.
 """
 
 from __future__ import annotations
@@ -24,6 +35,7 @@ from messages import (
 )
 from probes import Probe
 from runner import filter_available
+
 
 @dataclass
 class EpisodeResultV3:
@@ -53,14 +65,14 @@ def _json_float(x):
 
 def run_episode_v3(
     mode: str,
-    curiosity,
-    ratio,
-    coordinator,
-    belief0: Belief,
-    catalog: list[Probe],
-    budget: float,
-    env: Environment,
-    seed: int,
+    curiosity=None,
+    ratio=None,
+    coordinator=None,
+    belief0: Belief = None,
+    catalog: list[Probe] = None,
+    budget: float = 30.0,
+    env: Environment = None,
+    seed: int = 0,
     experiment_mode: str = "A",
     horizon: int = 10000,
     evpi_n_samples: int = 2000,
@@ -71,12 +83,12 @@ def run_episode_v3(
         raise ValueError(f"неизвестный режим: {mode}")
     if experiment_mode not in ("A", "B"):
         raise ValueError("experiment_mode должен быть 'A' или 'B'")
-
     if curiosity_type not in ("base", "ig"):
         raise ValueError("curiosity_type: 'base' | 'ig'")
     if curiosity is None:
         cls = Curiosity if curiosity_type == "base" else CuriosityIG
         curiosity = cls(belief0.n, sigma2_prior=1.0, lam=0.3, seed=seed)
+
     belief = belief0.copy()
     budget_remaining = float(budget)
     budget_used = 0.0
@@ -87,6 +99,7 @@ def run_episode_v3(
     rng_curiosity = np.random.default_rng([seed, 20000])
     rng_ratio = np.random.default_rng([seed, 30000])
     rng_evpi = np.random.default_rng([seed, 40000])
+    rng_alternation = np.random.default_rng([seed, 50000])
 
     n_curiosity_executed = 0
     n_counter_proposed = 0
@@ -115,7 +128,9 @@ def run_episode_v3(
         for _attempt in range(2):
             cp = curiosity.propose(belief.known, rng_curiosity)
             rp = ratio.propose(belief, budget_remaining, available, cp, rng_ratio)
-            decision = coordinator.coordinate(cp, rp, mode, budget_remaining)
+            decision = coordinator.coordinate(
+                cp, rp, mode, budget_remaining, step=step, rng=rng_alternation
+            )
 
             if decision.action is None:
                 break
@@ -188,6 +203,7 @@ def run_episode_v3(
             "step": step,
             "experiment_mode": mode,
             "budget_mode": experiment_mode,
+            "curiosity_type": curiosity_type,
             "curiosity_proposal": (
                 None if cp is None
                 else {"parcel_id": int(cp.parcel_id), "interest": float(cp.interest)}
@@ -222,7 +238,6 @@ def run_episode_v3(
             "ig_executed": ig_executed,
             "bs_executed": bs_executed,
             "behavioral_novelty_executed": behavioral_novelty_executed,
-            "curiosity_type": curiosity_type,
             "surprise": float(surprise),
             "curiosity_state_after": {
                 "interest": st.interest.tolist(),
