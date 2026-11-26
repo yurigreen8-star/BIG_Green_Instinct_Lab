@@ -1,0 +1,25 @@
+{
+  "stage": "design",
+  "tag": "e2_verify",
+  "seed_start": 50000,
+  "n_seeds": 5,
+  "budgets": [
+    45.0
+  ],
+  "groups": [
+    "C_OL_DOM"
+  ],
+  "n_parcels": 30,
+  "evpi_n": 40000,
+  "lambda": 0.3,
+  "rho": 0.5,
+  "eps": 1e-12,
+  "delta_tost": 0.01,
+  "git_head": "6e730a31bf43e064d9c06786382e2e5d9361e6d8",
+  "prereg_blob": "997c4319a10184dcc491d66bcdf9b565a57b73d7",
+  "prereg_commit": "431b1c16607e5ba6b5f7df164e652a92af7b94b1",
+  "prereg_dirty": "",
+  "python": "3.11.2",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1"
+}

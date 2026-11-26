@@ -1,0 +1,25 @@
+{
+  "C_OL_DOM|45": {
+    "n_episodes": 5,
+    "mean_regret": 0.0243072762332881,
+    "median_regret": 0.0,
+    "sd_regret": 0.05435272200549723,
+    "pcs_pct": 80.0,
+    "mean_probes": 45.0,
+    "mean_budget_used": 45.0,
+    "mean_unique": 26.2,
+    "mean_repeats": 18.8,
+    "mean_entropy_visits": 3.001437510638783,
+    "mean_gini_visits": 0.4066666666666666,
+    "mean_spearman_s_repeats": 0.06719182794429057,
+    "n_spearman_defined": 5,
+    "mean_replacement_pct": 86.22222222222223,
+    "mean_ratio_choice_pct": 86.22222222222223,
+    "mean_ratio_action_pct": 88.44444444444444,
+    "mean_frac_max_evsi_tiny_pct": 0.0,
+    "mean_evpi": 0.03667689098598489,
+    "sd_evpi": 0.041574343407100436,
+    "mean_evpi_mc_se": 0.0019381974005027523,
+    "evpi_n_samples": 40000
+  }
+}
