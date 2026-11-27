@@ -35,3 +35,4 @@ Thumbs.db
 *.tmp
 *.swp
 *~!results/E2_REPORT.md
+!results/E2_REPORT.md
