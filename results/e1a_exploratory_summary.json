@@ -1,0 +1,130 @@
+{
+  "budget": 45.0,
+  "seed_range": [
+    40100,
+    40199
+  ],
+  "n_parcels": 30,
+  "summary": {
+    "CURIOSITY_SOLO": {
+      "mean_regret": 0.4982565721486769,
+      "median_regret": 0.1412072584046027,
+      "sd_regret": 0.6488322259431006,
+      "mean_pcs": 0.45,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "n_episodes": 100
+    },
+    "RATIO_SOLO": {
+      "mean_regret": 0.1328746630236604,
+      "median_regret": 0.0,
+      "sd_regret": 0.26502775392838673,
+      "mean_pcs": 0.69,
+      "mean_probes": 45.0,
+      "mean_unique": 25.65,
+      "mean_repeats": 19.35,
+      "n_episodes": 100
+    },
+    "COMBINED": {
+      "mean_regret": 0.1328746630236604,
+      "median_regret": 0.0,
+      "sd_regret": 0.26502775392838673,
+      "mean_pcs": 0.69,
+      "mean_probes": 45.0,
+      "mean_unique": 25.83,
+      "mean_repeats": 19.17,
+      "n_episodes": 100
+    },
+    "COMBINED_IGNORE": {
+      "mean_regret": 0.4982565721486769,
+      "median_regret": 0.1412072584046027,
+      "sd_regret": 0.6488322259431006,
+      "mean_pcs": 0.45,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "n_episodes": 100
+    },
+    "FIXED_ALTERNATION_C_FIRST": {
+      "mean_regret": 0.2157816419435833,
+      "median_regret": 0.0,
+      "sd_regret": 0.37695753444893976,
+      "mean_pcs": 0.62,
+      "mean_probes": 45.0,
+      "mean_unique": 29.97,
+      "mean_repeats": 15.03,
+      "n_episodes": 100
+    },
+    "FIXED_ALTERNATION_R_FIRST": {
+      "mean_regret": 0.2063830330002436,
+      "median_regret": 0.0,
+      "sd_regret": 0.3667780600699348,
+      "mean_pcs": 0.63,
+      "mean_probes": 45.0,
+      "mean_unique": 29.94,
+      "mean_repeats": 15.06,
+      "n_episodes": 100
+    },
+    "RANDOM_ALTERNATION_50_50": {
+      "mean_regret": 0.2172333915388625,
+      "median_regret": 0.0,
+      "sd_regret": 0.367614173866779,
+      "mean_pcs": 0.61,
+      "mean_probes": 45.0,
+      "mean_unique": 29.88,
+      "mean_repeats": 15.12,
+      "n_episodes": 100
+    },
+    "B_IG_FAST": {
+      "mean_regret": 0.3440511604962335,
+      "median_regret": 0.0,
+      "sd_regret": 0.5564248066761657,
+      "mean_pcs": 0.53,
+      "mean_probes": 45.0,
+      "mean_unique": 29.28,
+      "mean_repeats": 15.72,
+      "n_episodes": 100
+    },
+    "B_EVSI_FAST": {
+      "mean_regret": 0.1328746630236604,
+      "median_regret": 0.0,
+      "sd_regret": 0.26502775392838673,
+      "mean_pcs": 0.69,
+      "mean_probes": 45.0,
+      "mean_unique": 25.65,
+      "mean_repeats": 19.35,
+      "n_episodes": 100
+    },
+    "B_RANDOM": {
+      "mean_regret": 0.5022746160393964,
+      "median_regret": 0.24794157883187373,
+      "sd_regret": 0.6614971696449193,
+      "mean_pcs": 0.4,
+      "mean_probes": 45.0,
+      "mean_unique": 23.38,
+      "mean_repeats": 21.62,
+      "n_episodes": 100
+    },
+    "B_SWEEP_THEN_RANDOM": {
+      "mean_regret": 0.3269594941423853,
+      "median_regret": 0.0,
+      "sd_regret": 0.5340866268008336,
+      "mean_pcs": 0.53,
+      "mean_probes": 45.0,
+      "mean_unique": 25.9,
+      "mean_repeats": 19.1,
+      "n_episodes": 100
+    },
+    "CURIOSITY_ABS_U": {
+      "mean_regret": 0.37928764695638667,
+      "median_regret": 0.010903248970963175,
+      "sd_regret": 0.5860103905720258,
+      "mean_pcs": 0.5,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "n_episodes": 100
+    }
+  }
+}

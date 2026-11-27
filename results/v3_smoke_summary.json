@@ -1,0 +1,495 @@
+{
+  "status": "EXPLORATORY",
+  "seed_range": [
+    0,
+    4
+  ],
+  "n_parcels": 30,
+  "budget": 45.0,
+  "lambda_curiosity": 0.3,
+  "sigma2_prior": 1.0,
+  "summary": {
+    "CURIOSITY_SOLO": {
+      "mean_regret": 0.14947016555715206,
+      "median_regret": 0.0,
+      "pcs_pct": 80.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.1874074074074074,
+      "mean_ig_total": 13.379304501382212,
+      "max_ig_entropy_absdiff": 1.2434497875801753e-14,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.004436853801628005,
+      "episode_telescoping_residual_mean": 0.1996584210732605,
+      "mean_diff": -0.004436853801628005,
+      "mean_counter_proposed": 24.8,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "RATIO_SOLO": {
+      "mean_regret": 0.0,
+      "median_regret": 0.0,
+      "pcs_pct": 100.0,
+      "mean_probes": 28.0,
+      "mean_unique": 22.0,
+      "mean_repeats": 6.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.3959966844749453,
+      "mean_ig_total": 11.960297688261168,
+      "max_ig_entropy_absdiff": 3.552713678800501e-15,
+      "total_steps": 140,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.012415152207491884,
+      "episode_telescoping_residual_mean": -0.3476242618097728,
+      "mean_diff": 0.012415152207491884,
+      "mean_counter_proposed": 3.4,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "COMBINED": {
+      "mean_regret": 0.05139908712429331,
+      "median_regret": 0.0,
+      "pcs_pct": 80.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.2374814814814815,
+      "mean_ig_total": 13.125731977066007,
+      "max_ig_entropy_absdiff": 1.0658141036401503e-14,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.0026521165875587754,
+      "episode_telescoping_residual_mean": 0.11934524644014503,
+      "mean_diff": -0.0026521165875587754,
+      "mean_counter_proposed": 6.6,
+      "mean_counter_executed": 6.6,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "COMBINED_IGNORE": {
+      "mean_regret": 0.14947016555715206,
+      "median_regret": 0.0,
+      "pcs_pct": 80.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.1874074074074074,
+      "mean_ig_total": 13.379304501382212,
+      "max_ig_entropy_absdiff": 1.2434497875801753e-14,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.004436853801628005,
+      "episode_telescoping_residual_mean": 0.1996584210732605,
+      "mean_diff": -0.004436853801628005,
+      "mean_counter_proposed": 24.8,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "FIXED_ALTERNATION_C_FIRST": {
+      "mean_regret": 0.0,
+      "median_regret": 0.0,
+      "pcs_pct": 100.0,
+      "mean_probes": 32.6,
+      "mean_unique": 24.0,
+      "mean_repeats": 8.6,
+      "mean_budget": 45.0,
+      "mean_gini": 0.3734113090930428,
+      "mean_ig_total": 11.41557278449493,
+      "max_ig_entropy_absdiff": 3.552713678800501e-15,
+      "total_steps": 163,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.005172622958915865,
+      "episode_telescoping_residual_mean": -0.16862750846065744,
+      "mean_diff": 0.005172622958915865,
+      "mean_counter_proposed": 10.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "FIXED_ALTERNATION_R_FIRST": {
+      "mean_regret": 0.06479002022140165,
+      "median_regret": 0.0,
+      "pcs_pct": 80.0,
+      "mean_probes": 36.2,
+      "mean_unique": 28.6,
+      "mean_repeats": 7.6,
+      "mean_budget": 45.0,
+      "mean_gini": 0.20760988975937839,
+      "mean_ig_total": 12.965653582054017,
+      "max_ig_entropy_absdiff": 5.329070518200751e-15,
+      "total_steps": 181,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.010506360809988118,
+      "episode_telescoping_residual_mean": -0.3803302613215697,
+      "mean_diff": 0.010506360809988118,
+      "mean_counter_proposed": 8.4,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "RANDOM_ALTERNATION_50_50": {
+      "mean_regret": 0.25641607905194,
+      "median_regret": 0.0,
+      "pcs_pct": 80.0,
+      "mean_probes": 35.6,
+      "mean_unique": 28.2,
+      "mean_repeats": 7.4,
+      "mean_budget": 45.0,
+      "mean_gini": 0.211895763507632,
+      "mean_ig_total": 12.890131621133785,
+      "max_ig_entropy_absdiff": 5.329070518200751e-15,
+      "total_steps": 178,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.02035046942409286,
+      "episode_telescoping_residual_mean": -0.7244767114977055,
+      "mean_diff": 0.02035046942409286,
+      "mean_counter_proposed": 8.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "budget_exhausted": 5
+      }
+    },
+    "B_none": {
+      "mean_regret": 1.6486925961867933,
+      "median_regret": 1.2820803952597002,
+      "pcs_pct": 0.0,
+      "mean_probes": 0.0,
+      "mean_unique": 0.0,
+      "mean_repeats": 0.0,
+      "mean_budget": 0.0,
+      "mean_gini": 0.0,
+      "mean_ig_total": 0.0,
+      "max_ig_entropy_absdiff": 0.0,
+      "total_steps": 0,
+      "n_episodes": 5,
+      "stepwise_residual_mean": null,
+      "episode_telescoping_residual_mean": null,
+      "mean_diff": null,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "policy_none": 5
+      }
+    },
+    "B_random": {
+      "mean_regret": 0.4132054091577643,
+      "median_regret": 0.0,
+      "pcs_pct": 60.0,
+      "mean_probes": 12.8,
+      "mean_unique": 10.2,
+      "mean_repeats": 2.6,
+      "mean_budget": 45.0,
+      "mean_gini": 0.7117652717652717,
+      "mean_ig_total": 9.753523736325713,
+      "max_ig_entropy_absdiff": 1.7763568394002505e-15,
+      "total_steps": 64,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.03626099299970431,
+      "episode_telescoping_residual_mean": -0.464140710396215,
+      "mean_diff": 0.03626099299970431,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_IG": {
+      "mean_regret": 0.21336193776535511,
+      "median_regret": 0.062463425419548635,
+      "pcs_pct": 40.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.16666666666666666,
+      "mean_ig_total": 13.438196019210404,
+      "max_ig_entropy_absdiff": 7.105427357601002e-15,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.012518932741060307,
+      "episode_telescoping_residual_mean": 0.5633519733477135,
+      "mean_diff": -0.012518932741060307,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_mean_prec": {
+      "mean_regret": 0.8634587672007423,
+      "median_regret": 0.9484796223334213,
+      "pcs_pct": 0.0,
+      "mean_probes": 8.0,
+      "mean_unique": 2.2,
+      "mean_repeats": 5.8,
+      "mean_budget": 45.0,
+      "mean_gini": 0.9433333333333334,
+      "mean_ig_total": 4.237950126122513,
+      "max_ig_entropy_absdiff": 0.0,
+      "total_steps": 40,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.04030676833407436,
+      "episode_telescoping_residual_mean": 0.3224541466725948,
+      "mean_diff": -0.04030676833407436,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_EVSI": {
+      "mean_regret": 0.5816804464452983,
+      "median_regret": 0.4629932888978773,
+      "pcs_pct": 20.0,
+      "mean_probes": 8.0,
+      "mean_unique": 8.0,
+      "mean_repeats": 0.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.7333333333333333,
+      "mean_ig_total": 9.643107481830699,
+      "max_ig_entropy_absdiff": 3.552713678800501e-15,
+      "total_steps": 40,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.04647808170503068,
+      "episode_telescoping_residual_mean": -0.3718246536402455,
+      "mean_diff": 0.04647808170503068,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_EVSI_cost": {
+      "mean_regret": 0.0,
+      "median_regret": 0.0,
+      "pcs_pct": 100.0,
+      "mean_probes": 28.0,
+      "mean_unique": 22.0,
+      "mean_repeats": 6.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.3959966844749453,
+      "mean_ig_total": 11.960297688261168,
+      "max_ig_entropy_absdiff": 3.552713678800501e-15,
+      "total_steps": 140,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.012415152207491884,
+      "episode_telescoping_residual_mean": -0.3476242618097728,
+      "mean_diff": 0.012415152207491884,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_random_without_replacement": {
+      "mean_regret": 0.2209369355311325,
+      "median_regret": 0.0,
+      "pcs_pct": 60.0,
+      "mean_probes": 30.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 0.0,
+      "mean_budget": 30.0,
+      "mean_gini": 0.0,
+      "mean_ig_total": 10.397207708399174,
+      "max_ig_entropy_absdiff": 0.0,
+      "total_steps": 150,
+      "n_episodes": 5,
+      "stepwise_residual_mean": 0.002628674707776439,
+      "episode_telescoping_residual_mean": -0.07886024123329309,
+      "mean_diff": 0.002628674707776439,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "policy_none": 5
+      }
+    },
+    "B_sweep_then_random_revisit": {
+      "mean_regret": 0.20086925268144537,
+      "median_regret": 0.0,
+      "pcs_pct": 60.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.22562962962962968,
+      "mean_ig_total": 13.225057154367036,
+      "max_ig_entropy_absdiff": 1.0658141036401503e-14,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.00790375470395355,
+      "episode_telescoping_residual_mean": 0.35566896167790973,
+      "mean_diff": -0.00790375470395355,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    },
+    "B_sweep_then_reverse_revisit": {
+      "mean_regret": 0.21792336454623715,
+      "median_regret": 0.062463425419548635,
+      "pcs_pct": 40.0,
+      "mean_probes": 45.0,
+      "mean_unique": 30.0,
+      "mean_repeats": 15.0,
+      "mean_budget": 45.0,
+      "mean_gini": 0.16666666666666666,
+      "mean_ig_total": 13.438196019210404,
+      "max_ig_entropy_absdiff": 1.2434497875801753e-14,
+      "total_steps": 225,
+      "n_episodes": 5,
+      "stepwise_residual_mean": -0.01052443525719048,
+      "episode_telescoping_residual_mean": 0.4735995865735717,
+      "mean_diff": -0.01052443525719048,
+      "mean_counter_proposed": 0.0,
+      "mean_counter_executed": 0.0,
+      "stop_reasons": {
+        "no_affordable_probe": 5
+      }
+    }
+  },
+  "regret_paired_tests": [
+    {
+      "target": "COMBINED",
+      "control": "CURIOSITY_SOLO",
+      "delta": -0.09807107843285875,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "RATIO_SOLO",
+      "delta": 0.05139908712429331,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "COMBINED_IGNORE",
+      "delta": -0.09807107843285875,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "B_EVSI_cost",
+      "delta": 0.05139908712429331,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "B_random_without_replacement",
+      "delta": -0.1695378484068392,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "B_sweep_then_random_revisit",
+      "delta": -0.14947016555715206,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "B_sweep_then_reverse_revisit",
+      "delta": -0.16652427742194384,
+      "p_raw": 0.5,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "FIXED_ALTERNATION_C_FIRST",
+      "delta": 0.05139908712429331,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "FIXED_ALTERNATION_R_FIRST",
+      "delta": -0.013390933097108343,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    },
+    {
+      "target": "COMBINED",
+      "control": "RANDOM_ALTERNATION_50_50",
+      "delta": -0.20501699192764672,
+      "p_raw": 1.0,
+      "p_holm": 1.0,
+      "significant": false,
+      "note": ""
+    }
+  ],
+  "factorial_contrast_additive_only": {
+    "n_steps": {
+      "I_CR": -28.0,
+      "ci95": [
+        -34.21,
+        -22.4
+      ]
+    },
+    "n_unique": {
+      "I_CR": -22.0,
+      "ci95": [
+        -27.0,
+        -17.595000000000027
+      ]
+    },
+    "sum_ig": {
+      "I_CR": -12.213870212577373,
+      "ci95": [
+        -13.081736102759573,
+        -11.149383645922875
+      ]
+    },
+    "budget_used": {
+      "I_CR": -45.0,
+      "ci95": [
+        -45.0,
+        -45.0
+      ]
+    }
+  },
+  "limitations": [
+    "\u0421\u0438\u0434\u044b 0-99 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043b\u0438\u0441\u044c \u0432 v0.1 \u2014 \u043f\u0440\u043e\u0433\u043e\u043d exploratory, \u043d\u0435 confirmatory.",
+    "\u0420\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u0447\u0435\u0440\u0435\u0434\u043e\u0432\u0430\u043d\u0438\u044f \u0438 sweep-\u043a\u043e\u043d\u0442\u0440\u043e\u043b\u0438 \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u044b \u0432 \u0441\u0435\u043c\u044c\u044e \u0441\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0439; H-D \u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044f \u043f\u043e \u0441\u0442\u0440\u043e\u043a\u0430\u043c COMBINED vs FIXED/RANDOM_ALTERNATION \u0438 vs sweep.",
+    "I_CR \u043d\u0435 \u043f\u0440\u0438\u043c\u0435\u043d\u044f\u0435\u0442\u0441\u044f \u043a regret: \u043c\u0435\u0445\u0430\u043d\u0438\u0437\u043c\u044b \u0437\u0430\u043c\u0435\u0449\u0430\u044e\u0449\u0438\u0435, \u043a\u043e\u043d\u0442\u0440\u0430\u0441\u0442 \u043d\u0435\u0430\u0434\u0434\u0438\u0442\u0438\u0432\u0435\u043d.",
+    "\u041f\u0440\u0438 budget = n sweep-\u043a\u043e\u043d\u0442\u0440\u043e\u043b\u0438 \u043d\u0435 \u0438\u043c\u0435\u044e\u0442 \u0444\u0430\u0437\u044b \u043f\u043e\u0432\u0442\u043e\u0440\u043e\u0432 \u0438 \u043d\u0435\u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0442\u0438\u0432\u043d\u044b; \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0442\u0435\u043b\u044c\u043d\u044b \u0442\u043e\u043b\u044c\u043a\u043e budget > n (45, 60).",
+    "Curiosity solo \u0432 Mode A \u043f\u0440\u0438 budget = n = sweep 30xFAST (\u0434\u043e\u043a\u0430\u0437\u0430\u043d\u043e \u0442\u0435\u0441\u0442\u043e\u043c).",
+    "mean_diff \u0442\u043e\u0436\u0434\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u043e stepwise_residual_mean \u043f\u0440\u0438 \u043e\u0434\u0438\u043d\u0430\u043a\u043e\u0432\u043e\u0439 \u0430\u0433\u0440\u0435\u0433\u0430\u0446\u0438\u0438."
+  ]
+}

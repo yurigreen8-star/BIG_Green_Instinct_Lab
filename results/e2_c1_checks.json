@@ -1,0 +1,7 @@
+{
+  "budget_and_probes": true,
+  "no_nan_inf": true,
+  "evpi_n_correct": true,
+  "reproducible": true,
+  "details": []
+}

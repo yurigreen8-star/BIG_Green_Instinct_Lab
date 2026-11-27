@@ -1,0 +1,41 @@
+{
+  "stage": "confirm",
+  "tag": "e2_c4",
+  "seed_start": 51750,
+  "n_seeds": 250,
+  "budgets": [
+    45.0,
+    90.0
+  ],
+  "groups": [
+    "RATIO_SOLO",
+    "C_OL_SOLO",
+    "C_BS_SOLO",
+    "C_OL_DOM",
+    "C_BS_DOM",
+    "C_OL_OVR",
+    "C_BS_OVR",
+    "C_OL_VETO",
+    "C_BS_VETO",
+    "MATCH_C_OL_DOM",
+    "MATCH_C_BS_DOM",
+    "MATCH_C_OL_OVR",
+    "MATCH_C_BS_OVR",
+    "B_IG_FAST",
+    "B_RANDOM",
+    "B_SWEEP_THEN_RANDOM"
+  ],
+  "n_parcels": 30,
+  "evpi_n": 40000,
+  "lambda": 0.3,
+  "rho": 0.5,
+  "eps": 1e-12,
+  "delta_tost": 0.01,
+  "git_head": "5a1c2d55b22b9c2d405f1f33ae00f0e4cf458264",
+  "prereg_blob": "997c4319a10184dcc491d66bcdf9b565a57b73d7",
+  "prereg_commit": "431b1c16607e5ba6b5f7df164e652a92af7b94b1",
+  "prereg_dirty": "",
+  "python": "3.11.2",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1"
+}

@@ -1,0 +1,48 @@
+{
+  "mode": "B",
+  "n_scenarios": 50,
+  "budget_limit": 1000,
+  "evpi_epsilon": 0.05,
+  "summary": {
+    "B_random": {
+      "mean_budget": 403.66,
+      "median_budget": 370.5,
+      "mean_probes": 102.98,
+      "mean_regret": 0.03643734534823702,
+      "pcs_pct": 76.0,
+      "evpi_stop_pct": 98.0
+    },
+    "B_IG": {
+      "mean_budget": 305.94,
+      "median_budget": 290.0,
+      "mean_probes": 115.46,
+      "mean_regret": 0.06646867242322857,
+      "pcs_pct": 78.0,
+      "evpi_stop_pct": 98.0
+    },
+    "B_mean_prec": {
+      "mean_budget": 980.64,
+      "median_budget": 1000.0,
+      "mean_probes": 122.58,
+      "mean_regret": 1.0899506851287557,
+      "pcs_pct": 6.0,
+      "evpi_stop_pct": 2.0
+    },
+    "B_EVSI": {
+      "mean_budget": 217.76,
+      "median_budget": 236.0,
+      "mean_probes": 27.22,
+      "mean_regret": 0.014216374690791409,
+      "pcs_pct": 90.0,
+      "evpi_stop_pct": 100.0
+    },
+    "B_EVSI_cost": {
+      "mean_budget": 119.52,
+      "median_budget": 106.5,
+      "mean_probes": 44.46,
+      "mean_regret": 0.013756811517004999,
+      "pcs_pct": 86.0,
+      "evpi_stop_pct": 100.0
+    }
+  }
+}
